@@ -118,8 +118,7 @@ class _TranscriptEditingPanelState extends State<TranscriptEditingPanel>
                                       width: 20,
                                       height: 20,
                                       decoration: BoxDecoration(
-                                        color: pageState
-                                            .colors[pageState.activeColorTab],
+                                        color: pageState.primaryTextColor,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -138,8 +137,8 @@ class _TranscriptEditingPanelState extends State<TranscriptEditingPanel>
                                   width: 20,
                                   height: 20,
                                   decoration: BoxDecoration(
-                                    color: pageState
-                                        .colors[pageState.activeColorTab],
+                                    // color: pageState
+                                    //     .colors[pageState.activeColorTab],
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -163,19 +162,31 @@ class _TranscriptEditingPanelState extends State<TranscriptEditingPanel>
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        "A",
-                        style: TextStyle(
-                          fontSize: 26,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () {
+                          // change text's background color
+                          pageState.cycleTextBgStyle();
+                        },
+                        child: const Text(
+                          "A",
+                          style: TextStyle(
+                            fontSize: 26,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          //
                         ),
-                        //
                       ),
+                      const SizedBox(width: 12),
+
                       // linea break button
-                      const Icon(
-                        Icons.line_axis,
-                        color: Colors.white,
+                      const Text(
+                        "Line Break: 3",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),

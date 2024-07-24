@@ -8,6 +8,8 @@ import 'package:photo_manager/photo_manager.dart';
 
 enum CreatorPageStateEnum { image, media, transcript, ideal }
 
+enum TextBgStyle { solid, blur, none }
+
 enum TextAlignment { left, center, right }
 
 enum WidgetType { text, image }
@@ -20,10 +22,14 @@ class CreatorPageState with ChangeNotifier {
   String? _backgroundImage;
 
   int _activeTextTab = 0;
-  int _activeColorTab = 0;
+
   bool _isTextTabSelected = true;
   CreatorPageStateEnum _state = CreatorPageStateEnum.ideal;
   List<WidgetData> canvasWidgets = [];
+  TextBgStyle _textBgStyle = TextBgStyle.solid;
+  Color _primaryTextColor = Colors.black;
+  Color _secondaryTextColor = Colors.white;
+  bool _showingColorPicker = false;
 
   List<TextStyle> textStyles = [
     const TextStyle(fontFamily: 'Arial', fontSize: 24),
@@ -52,6 +58,11 @@ class CreatorPageState with ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleColorPicker() {
+    _showingColorPicker = !_showingColorPicker;
+    notifyListeners();
+  }
+
   Future<void> setMovingState(bool moving, int? index) async {
     isMoving = moving;
     movingItemIndex = index;
@@ -66,6 +77,21 @@ class CreatorPageState with ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isLightColor(Color color) {
+    return color.computeLuminance() > 0.5;
+  }
+
+  void updatePrimaryTextColor(Color color) {
+    _primaryTextColor = color;
+    _secondaryTextColor = _isLightColor(color) ? Colors.black : Colors.white;
+    notifyListeners();
+  }
+
+  void updateSecondaryTextColor(Color color) {
+    _secondaryTextColor = color;
+    notifyListeners();
+  }
+
   void changeTextStyle(int index) {
     for (var i = 0; i < canvasWidgets.length; i++) {
       if (canvasWidgets[i].type == WidgetType.text) {
@@ -73,7 +99,7 @@ class CreatorPageState with ChangeNotifier {
           type: WidgetType.text,
           data: canvasWidgets[i].data,
           matrix: canvasWidgets[i].matrix,
-          textStyle: textStyles[index].copyWith(color: colors[_activeColorTab]),
+          textStyle: textStyles[index],
         );
       }
     }
@@ -82,7 +108,7 @@ class CreatorPageState with ChangeNotifier {
   }
 
   final List<Color> colors = List.generate(
-    20,
+    22,
     (index) => Color.fromRGBO(
       Random().nextInt(255),
       Random().nextInt(255),
@@ -92,18 +118,21 @@ class CreatorPageState with ChangeNotifier {
   );
 
   bool get isSendingState => _isSendingState;
+  bool get showingColorPicker => _showingColorPicker;
   int get activeTextTab => _activeTextTab;
-  int get activeColorTab => _activeColorTab;
   bool get isTextTabSelected => _isTextTabSelected;
   CreatorPageStateEnum get state => _state;
   String? get backgroundImage => _backgroundImage;
+  TextBgStyle get textBgStyle => _textBgStyle;
+  Color get primaryTextColor => _primaryTextColor;
+  Color get secondaryTextColor => _secondaryTextColor;
 
   void _addSampleWidgets() {
     canvasWidgets.add(WidgetData(
       type: WidgetType.image,
       data:
           "https://pbs.twimg.com/profile_images/1675938226568065037/KqPt2DPg_400x400.jpg",
-      matrix: Matrix4.identity(),
+      matrix: Matrix4.identity()..translate(0.0, -200.0, 0.0),
     ));
     canvasWidgets.add(WidgetData(
       type: WidgetType.image,
@@ -114,8 +143,8 @@ class CreatorPageState with ChangeNotifier {
     canvasWidgets.add(WidgetData(
       type: WidgetType.text,
       data: 'Hold on tight while magically convert your voice into text...',
-      textStyle: TextStyle(
-        color: colors[_activeColorTab],
+      textStyle: const TextStyle(
+        color: Colors.white,
         fontWeight: FontWeight.bold,
         fontSize: 24,
       ),
@@ -144,11 +173,6 @@ class CreatorPageState with ChangeNotifier {
 
   set activeTextTab(int value) {
     _activeTextTab = value;
-    notifyListeners();
-  }
-
-  set activeColorTab(int value) {
-    _activeColorTab = value;
     notifyListeners();
   }
 
@@ -191,6 +215,18 @@ class CreatorPageState with ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+
+  // cycle text background style
+  void cycleTextBgStyle() {
+    if (_textBgStyle == TextBgStyle.solid) {
+      _textBgStyle = TextBgStyle.blur;
+    } else if (_textBgStyle == TextBgStyle.blur) {
+      _textBgStyle = TextBgStyle.none;
+    } else {
+      _textBgStyle = TextBgStyle.solid;
+    }
+    notifyListeners();
   }
 
   void navigateToLayersPage(BuildContext context) {

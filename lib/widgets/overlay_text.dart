@@ -18,23 +18,14 @@ class OverlayedText extends StatelessWidget {
     this.scale = 1,
   });
 
-  bool isLightColor(Color color) {
-    print(color.computeLuminance());
-    return color.computeLuminance() > 0.5;
-  }
-
-  // Function to get contrasting background color
-  Color getContrastingBackgroundColor(Color textColor) {
-    return isLightColor(textColor)
-        ? Colors.black.withOpacity(0.38)
-        : Colors.white.withOpacity(0.38);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<CreatorPageState>(builder: (context, pageState, _) {
-      final textColor = pageState.selectedColor;
-      final backgroundColor = getContrastingBackgroundColor(textColor);
+      final backgroundColor = _getBgColor(
+        primaryColor: pageState.primaryTextColor,
+        secondaryColor: pageState.secondaryTextColor,
+        textBgStyle: pageState.textBgStyle,
+      );
 
       return MatrixGestureDetector(
         onScaleEnd: () {
@@ -79,8 +70,11 @@ class OverlayedText extends StatelessWidget {
                               pageState.canvasWidgets[index].textAlignment ??
                                   TextAlignment.left), // Add this line
                           style: textStyle!.copyWith(
-                            color: pageState.colors[pageState.activeColorTab],
-                          ),
+                              color: _getTextColor(
+                            primaryColor: pageState.primaryTextColor,
+                            secondaryColor: pageState.secondaryTextColor,
+                            textBgStyle: pageState.textBgStyle,
+                          )),
                           backgroundColor: backgroundColor,
                         ),
                       ),
@@ -103,6 +97,36 @@ class OverlayedText extends StatelessWidget {
         return TextAlign.center;
       case TextAlignment.right:
         return TextAlign.right;
+    }
+  }
+
+  _getBgColor({
+    required Color primaryColor,
+    required Color secondaryColor,
+    required TextBgStyle textBgStyle,
+  }) {
+    switch (textBgStyle) {
+      case TextBgStyle.solid:
+        return primaryColor;
+      case TextBgStyle.blur:
+        return secondaryColor;
+      case TextBgStyle.none:
+        return Colors.transparent;
+    }
+  }
+
+  _getTextColor({
+    required Color primaryColor,
+    required Color secondaryColor,
+    required TextBgStyle textBgStyle,
+  }) {
+    switch (textBgStyle) {
+      case TextBgStyle.solid:
+        return secondaryColor;
+      case TextBgStyle.blur:
+        return primaryColor;
+      case TextBgStyle.none:
+        return primaryColor;
     }
   }
 }
