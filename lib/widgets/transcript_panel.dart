@@ -136,7 +136,7 @@ class _TranscriptEditingPanelState extends State<TranscriptEditingPanel>
                               : Container(
                                   width: 20,
                                   height: 20,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     // color: pageState
                                     //     .colors[pageState.activeColorTab],
                                     shape: BoxShape.circle,
@@ -161,20 +161,22 @@ class _TranscriptEditingPanelState extends State<TranscriptEditingPanel>
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(width: 12),
                       GestureDetector(
                         onTap: () {
                           // change text's background color
                           pageState.cycleTextBgStyle();
                         },
-                        child: const Text(
-                          "A",
-                          style: TextStyle(
-                            fontSize: 26,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            "A",
+                            style: TextStyle(
+                              fontSize: 26,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            //
                           ),
-                          //
                         ),
                       ),
                       const SizedBox(width: 12),

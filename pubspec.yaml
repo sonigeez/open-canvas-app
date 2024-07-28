@@ -45,8 +45,8 @@ dependencies:
   photo_manager: ^3.2.1
   flutter_colorpicker: ^1.1.0
   photo_manager_image_provider: ^2.1.1
-  palette_generator: ^0.3.3+4
   image: ^3.0.1
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

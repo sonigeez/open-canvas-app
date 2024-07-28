@@ -22,19 +22,12 @@ class ActionButtonsPanel extends StatelessWidget {
             Row(
               children: [
                 ButtonComponent(
-                  onTap: () {},
-                  text: "Image",
-                  icon: const Icon(
-                    Icons.image,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                ButtonComponent(
-                  onTap: () {},
+                  onTap: () {
+                    pageState.toggleMediaEditing();
+                  },
                   text: "Media",
                   icon: const Icon(
-                    Icons.video_library,
+                    Icons.add,
                     color: Colors.white,
                     size: 24,
                   ),
@@ -43,7 +36,7 @@ class ActionButtonsPanel extends StatelessWidget {
                   onTap: () {
                     pageState.toggleTextEditing();
                   },
-                  text: "Transcript",
+                  text: "Text",
                   icon: const Icon(
                     Icons.text_fields,
                     color: Colors.white,
@@ -118,10 +111,6 @@ class ButtonComponent extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         height: 50,
         width: 56,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(12),
-        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

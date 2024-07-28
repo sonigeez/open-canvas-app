@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:creator_flow/creator_page_state.dart';
@@ -65,11 +66,7 @@ class OverlayedImage extends StatelessWidget {
                       ),
                       child: SmoothBlur(
                         blur: shouldBlur,
-                        child: Image.network(
-                          imageUrl,
-                          height: 150,
-                          width: 150,
-                        ),
+                        child: _openAnyImage(imageUrl),
                       ),
                     ),
                   ),
@@ -78,6 +75,22 @@ class OverlayedImage extends StatelessWidget {
             );
           },
         ));
+  }
+
+  Widget _openAnyImage(String imageUrl) {
+    if (imageUrl.startsWith('http')) {
+      return Image.network(
+        imageUrl,
+        height: 150,
+        width: 150,
+      );
+    } else {
+      return Image.file(
+        File(imageUrl),
+        height: 150,
+        width: 150,
+      );
+    }
   }
 }
 

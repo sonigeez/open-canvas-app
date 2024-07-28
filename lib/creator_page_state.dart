@@ -1,12 +1,15 @@
+import 'dart:convert';
 import 'dart:math';
-
+import 'package:creator_flow/bottom_sheet_route.dart';
 import 'package:creator_flow/widgets/background_bottom_sheet.dart';
+import 'package:creator_flow/widgets/image_bottom_sheet.dart';
 import 'package:creator_flow/widgets/layers_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-enum CreatorPageStateEnum { image, media, transcript, ideal }
+enum CreatorPageStateEnum { media, transcript, ideal }
 
 enum TextBgStyle { solid, blur, none }
 
@@ -16,7 +19,6 @@ enum WidgetType { text, image }
 
 class CreatorPageState with ChangeNotifier {
   Color selectedColor = Colors.amber;
-  String editText = "Edit this text";
 
   bool _isSendingState = false;
   String? _backgroundImage;
@@ -32,16 +34,16 @@ class CreatorPageState with ChangeNotifier {
   bool _showingColorPicker = false;
 
   List<TextStyle> textStyles = [
-    const TextStyle(fontFamily: 'Arial', fontSize: 24),
-    const TextStyle(fontFamily: 'Times New Roman', fontSize: 24),
-    const TextStyle(fontFamily: 'Courier', fontSize: 24),
-    const TextStyle(fontFamily: 'Verdana', fontSize: 24),
-    const TextStyle(fontFamily: 'Georgia', fontSize: 24),
-    const TextStyle(fontFamily: 'Palatino', fontSize: 24),
-    const TextStyle(fontFamily: 'Garamond', fontSize: 24),
-    const TextStyle(fontFamily: 'Bookman', fontSize: 24),
-    const TextStyle(fontFamily: 'Comic Sans MS', fontSize: 24),
-    const TextStyle(fontFamily: 'Trebuchet MS', fontSize: 24),
+    GoogleFonts.inter(fontSize: 24),
+    GoogleFonts.montserrat(fontSize: 24),
+    GoogleFonts.newsreader(fontSize: 24),
+    GoogleFonts.gelasio(fontSize: 24),
+    GoogleFonts.chivo(fontSize: 24),
+    GoogleFonts.recursive(fontSize: 24),
+    GoogleFonts.commissioner(fontSize: 24),
+    GoogleFonts.fredoka(fontSize: 24),
+    GoogleFonts.palanquin(fontSize: 24),
+    GoogleFonts.playfairDisplay(fontSize: 24),
   ];
 
   bool isMoving = false;
@@ -63,11 +65,42 @@ class CreatorPageState with ChangeNotifier {
     notifyListeners();
   }
 
+  CreatorPageStateData toCreatorPageStateData() => CreatorPageStateData(
+        activeTextTab: _activeTextTab,
+        state: _state,
+        canvasWidgets: canvasWidgets,
+        textBgStyle: _textBgStyle,
+        primaryTextColor: _primaryTextColor,
+        secondaryTextColor: _secondaryTextColor,
+        selectedColor: selectedColor,
+        backgroundImage: _backgroundImage,
+      );
+
+  void loadFromCreatorPageStateData(CreatorPageStateData data) {
+    _activeTextTab = data.activeTextTab;
+    _state = data.state;
+    canvasWidgets = data.canvasWidgets;
+    _textBgStyle = data.textBgStyle;
+    _primaryTextColor = data.primaryTextColor;
+    _secondaryTextColor = data.secondaryTextColor;
+    selectedColor = data.selectedColor;
+    _backgroundImage = data.backgroundImage;
+    notifyListeners();
+  }
+
+  String toJson() => jsonEncode(toCreatorPageStateData().toJson());
+
+  static CreatorPageState fromJson(String jsonString) {
+    final state = CreatorPageState();
+    state.loadFromCreatorPageStateData(
+        CreatorPageStateData.fromJson(jsonDecode(jsonString)));
+    return state;
+  }
+
   Future<void> setMovingState(bool moving, int? index) async {
     isMoving = moving;
     movingItemIndex = index;
     if (isMoving && !_hasTriggedHapticFeedback) {
-      // HapticFeedback.selectionClick();
       await Haptics.vibrate(HapticsType.soft);
 
       _hasTriggedHapticFeedback = true;
@@ -99,7 +132,7 @@ class CreatorPageState with ChangeNotifier {
           type: WidgetType.text,
           data: canvasWidgets[i].data,
           matrix: canvasWidgets[i].matrix,
-          textStyle: textStyles[index],
+          textStyleIdx: index,
         );
       }
     }
@@ -129,25 +162,10 @@ class CreatorPageState with ChangeNotifier {
 
   void _addSampleWidgets() {
     canvasWidgets.add(WidgetData(
-      type: WidgetType.image,
-      data:
-          "https://pbs.twimg.com/profile_images/1675938226568065037/KqPt2DPg_400x400.jpg",
-      matrix: Matrix4.identity()..translate(0.0, -200.0, 0.0),
-    ));
-    canvasWidgets.add(WidgetData(
-      type: WidgetType.image,
-      data:
-          'https://pbs.twimg.com/profile_images/1667222212947107840/JS3nP0Mn_400x400.jpg',
-      matrix: Matrix4.identity(),
-    ));
-    canvasWidgets.add(WidgetData(
       type: WidgetType.text,
-      data: 'Hold on tight while magically convert your voice into text...',
-      textStyle: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: 24,
-      ),
+      data:
+          "building systems that are too complex for them to understand and eventually ruining the economy",
+      textStyleIdx: 0,
       matrix: Matrix4.identity(),
     ));
   }
@@ -156,7 +174,7 @@ class CreatorPageState with ChangeNotifier {
     canvasWidgets[index] = WidgetData(
       type: canvasWidgets[index].type,
       data: canvasWidgets[index].data,
-      textStyle: canvasWidgets[index].textStyle,
+      textStyleIdx: canvasWidgets[index].textStyleIdx,
       matrix: matrix,
     );
     notifyListeners();
@@ -210,14 +228,13 @@ class CreatorPageState with ChangeNotifier {
         type: WidgetType.text,
         data: canvasWidgets[index].data,
         matrix: canvasWidgets[index].matrix,
-        textStyle: canvasWidgets[index].textStyle,
+        textStyleIdx: canvasWidgets[index].textStyleIdx,
         textAlignment: newAlignment,
       );
       notifyListeners();
     }
   }
 
-  // cycle text background style
   void cycleTextBgStyle() {
     if (_textBgStyle == TextBgStyle.solid) {
       _textBgStyle = TextBgStyle.blur;
@@ -230,14 +247,9 @@ class CreatorPageState with ChangeNotifier {
   }
 
   void navigateToLayersPage(BuildContext context) {
-    Navigator.of(context).push(PageRouteBuilder(
-        opaque: false,
-        transitionDuration: const Duration(milliseconds: 300),
-        reverseTransitionDuration: const Duration(milliseconds: 300),
-        barrierDismissible: true,
-        pageBuilder: (BuildContext contexts, _, __) {
-          return const LayersPage();
-        }));
+    Navigator.of(context).push(BottomSheetRoute(
+      page: const LayersPage(),
+    ));
   }
 
   void changeLayerIndex(int oldIndex, int newIndex) {
@@ -273,10 +285,46 @@ class CreatorPageState with ChangeNotifier {
     );
   }
 
+  void openImageBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return ImageBottomSheet(
+          onImageSelected: (AssetEntity image) async {
+            final file = await image.file;
+            if (file != null) {
+              canvasWidgets.add(WidgetData(
+                type: WidgetType.image,
+                data: file.path,
+                matrix: Matrix4.identity(),
+              ));
+            }
+            notifyListeners();
+            Navigator.of(context).pop();
+          },
+        );
+      },
+    );
+  }
+
   void toggleTextEditing() {
     _state = (_state == CreatorPageStateEnum.transcript)
         ? CreatorPageStateEnum.ideal
         : CreatorPageStateEnum.transcript;
+    notifyListeners();
+  }
+
+  void toggleMediaEditing() {
+    _state = (_state == CreatorPageStateEnum.media)
+        ? CreatorPageStateEnum.ideal
+        : CreatorPageStateEnum.media;
+    notifyListeners();
+  }
+
+  void changeState(CreatorPageStateEnum state) {
+    _state = state;
     notifyListeners();
   }
 
@@ -285,21 +333,110 @@ class CreatorPageState with ChangeNotifier {
     openBackgroundBottomSheet(context);
     notifyListeners();
   }
-
-  void navigateToSendingPage(context) {}
 }
 
 class WidgetData {
   final WidgetType type;
   final dynamic data;
   final Matrix4 matrix;
-  final TextStyle? textStyle;
+  final int? textStyleIdx;
   final TextAlignment? textAlignment;
+
   WidgetData({
     required this.type,
-    this.textStyle,
+    this.textStyleIdx,
     this.textAlignment = TextAlignment.left,
     required this.data,
     required this.matrix,
   });
+
+  Map<String, dynamic> toJson() => {
+        'type': type.toJson(),
+        'data': data,
+        'matrix': matrix.storage.toList(),
+        'textStyleIdx': textStyleIdx,
+        'textAlignment': textAlignment?.toJson(),
+      };
+
+  static WidgetData fromJson(Map<String, dynamic> json) => WidgetData(
+        type: WidgetTypeExtension.fromJson(json['type']),
+        data: json['data'],
+        matrix: Matrix4.fromList(List<double>.from(json['matrix'])),
+        textStyleIdx: json['textStyleIdx'],
+        textAlignment: json['textAlignment'] != null
+            ? TextAlignmentExtension.fromJson(json['textAlignment'])
+            : null,
+      );
+}
+
+extension CreatorPageStateEnumExtension on CreatorPageStateEnum {
+  String toJson() => toString().split('.').last;
+  static CreatorPageStateEnum fromJson(String json) =>
+      CreatorPageStateEnum.values
+          .firstWhere((e) => e.toString().split('.').last == json);
+}
+
+extension TextBgStyleExtension on TextBgStyle {
+  String toJson() => toString().split('.').last;
+  static TextBgStyle fromJson(String json) => TextBgStyle.values
+      .firstWhere((e) => e.toString().split('.').last == json);
+}
+
+extension TextAlignmentExtension on TextAlignment {
+  String toJson() => toString().split('.').last;
+  static TextAlignment fromJson(String json) => TextAlignment.values
+      .firstWhere((e) => e.toString().split('.').last == json);
+}
+
+extension WidgetTypeExtension on WidgetType {
+  String toJson() => toString().split('.').last;
+  static WidgetType fromJson(String json) =>
+      WidgetType.values.firstWhere((e) => e.toString().split('.').last == json);
+}
+
+class CreatorPageStateData {
+  final int activeTextTab;
+  final CreatorPageStateEnum state;
+  final List<WidgetData> canvasWidgets;
+  final TextBgStyle textBgStyle;
+  final Color primaryTextColor;
+  final Color secondaryTextColor;
+  final Color selectedColor;
+  final String? backgroundImage;
+
+  CreatorPageStateData({
+    required this.activeTextTab,
+    required this.state,
+    required this.canvasWidgets,
+    required this.textBgStyle,
+    required this.primaryTextColor,
+    required this.secondaryTextColor,
+    required this.selectedColor,
+    this.backgroundImage,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'activeTextTab': activeTextTab,
+        'state': state.toJson(),
+        'canvasWidgets': canvasWidgets.map((w) => w.toJson()).toList(),
+        'textBgStyle': textBgStyle.toJson(),
+        'primaryTextColor': primaryTextColor.value,
+        'secondaryTextColor': secondaryTextColor.value,
+        'selectedColor': selectedColor.value,
+        'backgroundImage': backgroundImage,
+      };
+
+  static CreatorPageStateData fromJson(Map<String, dynamic> json) =>
+      CreatorPageStateData(
+        activeTextTab: json['activeTextTab'],
+        state: CreatorPageStateEnumExtension.fromJson(json['state']),
+        canvasWidgets: (json['canvasWidgets'] as List)
+            .map((w) => WidgetData.fromJson(w))
+            .toList(),
+        textBgStyle: TextBgStyleExtension.fromJson(json['textBgStyle']),
+        primaryTextColor: Color(json['primaryTextColor']),
+        secondaryTextColor: Color(json['secondaryTextColor']),
+        selectedColor: Color(json['selectedColor']),
+        backgroundImage: json['backgroundImage'],
+      );
 }

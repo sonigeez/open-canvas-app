@@ -4,21 +4,19 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:provider/provider.dart';
 
-class BackgroundBottomSheet extends StatefulWidget {
-  final void Function(Color) onColorSelected;
+class ImageBottomSheet extends StatefulWidget {
   final void Function(AssetEntity) onImageSelected;
 
-  const BackgroundBottomSheet({
+  const ImageBottomSheet({
     super.key,
-    required this.onColorSelected,
     required this.onImageSelected,
   });
 
   @override
-  State<BackgroundBottomSheet> createState() => _BackgroundBottomSheetState();
+  State<ImageBottomSheet> createState() => _ImageBottomSheetState();
 }
 
-class _BackgroundBottomSheetState extends State<BackgroundBottomSheet> {
+class _ImageBottomSheetState extends State<ImageBottomSheet> {
   final List<AssetEntity> _galleryImages = [];
   bool _isLoading = true;
   bool _isLoadingMore = false;
@@ -68,19 +66,6 @@ class _BackgroundBottomSheetState extends State<BackgroundBottomSheet> {
     _loadGalleryImages(page: _currentPage);
   }
 
-  Widget _buildCircularBackground(Color color, BuildContext context) {
-    return GestureDetector(
-      onTap: () => widget.onColorSelected(color),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: CircleAvatar(
-          backgroundColor: color,
-          radius: 24,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     var pageState = context.watch<CreatorPageState>();
@@ -118,30 +103,6 @@ class _BackgroundBottomSheetState extends State<BackgroundBottomSheet> {
                       ),
                       width: 70,
                       height: 6,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'Backgrounds',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 60,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: pageState.colors.length,
-                      itemBuilder: (context, index) {
-                        return _buildCircularBackground(
-                            pageState.colors[index], context);
-                      },
                     ),
                   ),
                   const Padding(

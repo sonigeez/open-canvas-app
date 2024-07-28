@@ -165,7 +165,8 @@ class _SendingBottomSheetState extends State<SendingBottomSheet> {
                                 index: index,
                                 text: widgetData.data,
                                 scale: scale,
-                                textStyle: widgetData.textStyle!,
+                                textStyle: pageState
+                                    .textStyles[widgetData.textStyleIdx!],
                               );
                             }
                           }),
@@ -190,6 +191,7 @@ class BottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var pageState = context.watch<CreatorPageState>();
     return DraggableScrollableSheet(
       initialChildSize: 0.56,
       minChildSize: 0.55,
@@ -279,43 +281,46 @@ class BottomSheet extends StatelessWidget {
                   bottom: 0,
                   right: 0,
                   left: 0,
-                  child: Container(
-                    // color: Colors.black,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        end: Alignment.topCenter,
-                        begin: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFF000000), // #000000 at 0%
-                          Color(0xEB000000), // rgba(0, 0, 0, 0.92) at 69%
-                          Color(0x00000000), // rgba(0, 0, 0, 0) at 100%
-                        ],
-                        stops: [
-                          0.0,
-                          0.69,
-                          1.0,
-                        ],
-                      ),
-                    ),
-
+                  child: GestureDetector(
+                    onTap: () => print(pageState.toJson()),
                     child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 30,
+                      // color: Colors.black,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          end: Alignment.topCenter,
+                          begin: Alignment.bottomCenter,
+                          colors: [
+                            Color(0xFF000000), // #000000 at 0%
+                            Color(0xEB000000), // rgba(0, 0, 0, 0.92) at 69%
+                            Color(0x00000000), // rgba(0, 0, 0, 0) at 100%
+                          ],
+                          stops: [
+                            0.0,
+                            0.69,
+                            1.0,
+                          ],
+                        ),
                       ),
-                      height: 50,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Post Your Spilll',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
+
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 30,
+                        ),
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'Post Your Spilll',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),

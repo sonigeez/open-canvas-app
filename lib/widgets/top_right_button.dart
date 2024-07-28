@@ -15,11 +15,8 @@ class TopRightButton extends StatelessWidget {
         right: 0,
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child: pageState.state != CreatorPageStateEnum.ideal
-              ? DoneButton(onTap: () {
-                  pageState.state = CreatorPageStateEnum.ideal;
-                })
-              : Column(
+          child: pageState.state != CreatorPageStateEnum.transcript
+              ? Column(
                   children: [
                     BackgroundButton(
                       onTap: () {
@@ -41,7 +38,10 @@ class TopRightButton extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
+                )
+              : DoneButton(onTap: () {
+                  pageState.state = CreatorPageStateEnum.ideal;
+                }),
         ),
       );
     });

@@ -1,13 +1,34 @@
 import 'dart:ui';
-
 import 'package:creator_flow/creator_page_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class LayersPage extends StatelessWidget {
+class LayersPage extends StatefulWidget {
   const LayersPage({
     super.key,
   });
+
+  @override
+  State<LayersPage> createState() => _LayersPageState();
+}
+
+class _LayersPageState extends State<LayersPage> {
+  bool _isOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _isOpen = true;
+      setState(() {});
+    });
+  }
+
+  void _onClose() {
+    _isOpen = false;
+    setState(() {});
+    Navigator.of(context).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +37,20 @@ class LayersPage extends StatelessWidget {
       backgroundColor: Colors.black.withOpacity(0.84),
       body: Stack(
         children: [
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-            child: Container(
-              color: Colors.black.withOpacity(0.2),
-            ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: !_isOpen
+                ? Container(
+                    key: const ValueKey("sized box"),
+                    child: const SizedBox.expand(),
+                  )
+                : BackdropFilter(
+                    key: const ValueKey("backdrop filter"),
+                    filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.2),
+                    ),
+                  ),
           ),
           SafeArea(
             child: Theme(
@@ -36,9 +66,7 @@ class LayersPage extends StatelessWidget {
                     child: Row(
                       children: [
                         IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+                          onPressed: _onClose,
                           icon: const Icon(
                             Icons.close,
                             color: Colors.white,
@@ -46,12 +74,9 @@ class LayersPage extends StatelessWidget {
                         ),
                         const Spacer(),
                         IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                          ),
-                        ),
+                          onPressed: _onClose,
+                          icon: const Icon(Icons.check, color: Colors.white),
+                        )
                       ],
                     ),
                   ),
